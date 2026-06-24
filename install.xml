@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+	<name>OneCatalog Import</name>
+	<code>onecatalog</code>
+	<version>0.1.0</version>
+	<author>OneCatalog</author>
+	<link>https://github.com/OneCatalog/onecatalog-opencart</link>
+
+	<!--
+		Пункт меню «OneCatalog» в левой колонке админки.
+		error="skip": если разметка core column_left.php отличается (правки темы/версии),
+		установка не падает — страница всё равно доступна через
+		«Расширения → Модули → OneCatalog Import».
+	-->
+	<file path="admin/controller/common/column_left.php">
+		<operation error="skip">
+			<search><![CDATA[$data['menus'][] = array(
+				'id'       => 'menu-catalog',]]></search>
+			<add position="before"><![CDATA[$data['menus'][] = array(
+				'id'       => 'menu-onecatalog',
+				'icon'     => 'fa-download',
+				'name'     => 'OneCatalog',
+				'href'     => $this->url->link('extension/module/onecatalog', 'user_token=' . $this->session->data['user_token'], true),
+				'children' => array()
+			);
+
+			]]></add>
+		</operation>
+	</file>
+</modification>
