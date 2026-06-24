@@ -57,6 +57,10 @@ class ModelExtensionOnecatalogImport extends Model
             $this->assignCategories($productId, $this->resolveCategories($p));
             $this->assignAttributes($productId, $this->resolveAttributes($p));
 
+            // Медиа: обложка + галерея (дедуп + трекинг качества, §5.3).
+            $this->load->model('extension/onecatalog/media');
+            $this->model_extension_onecatalog_media->applyMedia($productId, $p);
+
             return array('status' => $status, 'public_id' => $publicId, 'product_id' => $productId);
         } catch (\Exception $e) {
             return array('status' => 'error', 'public_id' => $publicId, 'message' => $e->getMessage());
