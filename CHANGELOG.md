@@ -9,6 +9,19 @@
 
 ## [Не выпущено] — бэклог
 
+### Реализовано на `dev` — ядро импорта одного товара (версия 0.2.0)
+- **`OneCatalogApi`** (`system/library`) — клиент Wiki API: `{base}/products/{public_id}/`,
+  заголовок `X-API-Key`, параметр `lang`, ответ `{success,data}`; `getBinary` для медиа.
+- **`OneCatalogUnits`** — конвертер г→класс веса / мм→класс длины магазина (§5.6),
+  покрыт офлайн-тестом (`tests/units-test.php`, 11 проверок).
+- **`ModelExtensionOnecatalogImport`** — импорт одного товара прямым SQL по нативным
+  таблицам: идемпотентность по `onecatalog_map` (не по model/sku, §5.1); `model←article`;
+  название/описание на все языки магазина; категории-дерево find-or-create (+ closure
+  `category_path`); характеристики → нативные `attribute` (группа «OneCatalog», find-by-
+  name, boolean→Yes/No, §5.4); габариты через Units. **Цена и статус — только при
+  создании** (§5.6), при переимпорте не затираются; цена не синтезируется (`0`).
+
+
 ### Реализовано на `dev` — каркас расширения (версия 0.1.0)
 - **Структура MVC-L** OpenCart 3.0.3.x: контроллер/модель/шаблон/языки
   (`extension/module/onecatalog`), упаковка под `.ocmod.zip` (`install.xml` + `upload/`).
