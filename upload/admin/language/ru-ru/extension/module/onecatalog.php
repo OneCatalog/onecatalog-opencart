@@ -63,6 +63,33 @@ $_['help_country_attr']     = '→ атрибут «Country»';
 $_['text_target_attribute'] = 'Атрибут';
 $_['text_target_category']  = 'Категория';
 
+// B2B — цены и остатки (§13)
+$_['heading_b2b']             = 'OneCatalog — цены и остатки (B2B)';
+$_['heading_b2b_run']         = 'Запуск синхронизации';
+$_['entry_b2b_base']          = 'Базовый URL B2B API';
+$_['entry_b2b_url_key']       = 'Ключ ритейлера (url_key)';
+$_['entry_b2b_private_key']   = 'Приватный ключ';
+$_['entry_b2b_strategy']      = 'Стратегия цены';
+$_['entry_b2b_region_priority']   = 'Приоритет регионов';
+$_['entry_b2b_supplier_priority'] = 'Приоритет поставщиков';
+$_['entry_b2b_supplier_fixed']    = 'Фиксированный поставщик (id)';
+$_['entry_b2b_promo']         = 'Промо как скидку';
+$_['entry_b2b_manage_stock']  = 'Управлять остатком';
+$_['text_strategy_min']       = 'Минимальная цена';
+$_['text_strategy_priority']  = 'По приоритету поставщиков';
+$_['text_strategy_supplier']  = 'Фиксированный поставщик';
+$_['help_b2b_csv']            = 'Id через запятую, сначала наивысший приоритет.';
+$_['help_b2b_supplier_fixed'] = 'Используется только со стратегией «Фиксированный поставщик».';
+$_['help_b2b_promo']          = 'Писать promo_price (0 < promo < base) как спец-цену товара.';
+$_['help_b2b_manage_stock']   = 'Писать суммарный остаток по складам в количество товара (subtract вкл).';
+$_['help_b2b_run']            = 'Идёт постранично в браузере (cron не нужен). Пишутся только изменившиеся товары (scan-and-diff).';
+$_['button_b2b_run']          = 'Синхронизировать сейчас';
+$_['text_b2b_not_configured'] = 'B2B-ключи не заданы — заполните url_key и private_key и сохраните.';
+$_['js_b2b_running']          = 'Синхронизация…';
+$_['js_b2b_changed']          = 'Изменено';
+$_['js_b2b_unchanged']        = 'Без изменений';
+$_['js_b2b_missing']          = 'Нет в каталоге';
+
 // Error
 $_['error_permission']   = 'Внимание: у вас нет прав на изменение OneCatalog Импорт!';
 $_['error_no_token']     = 'API-токен не задан (Настройки).';

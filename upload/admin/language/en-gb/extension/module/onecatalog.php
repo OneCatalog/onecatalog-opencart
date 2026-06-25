@@ -63,6 +63,33 @@ $_['help_country_attr']     = '→ attribute “Country”';
 $_['text_target_attribute'] = 'Attribute';
 $_['text_target_category']  = 'Category';
 
+// B2B — prices & stock (§13)
+$_['heading_b2b']             = 'OneCatalog — prices & stock (B2B)';
+$_['heading_b2b_run']         = 'Run synchronization';
+$_['entry_b2b_base']          = 'B2B API base URL';
+$_['entry_b2b_url_key']       = 'Retailer key (url_key)';
+$_['entry_b2b_private_key']   = 'Private key';
+$_['entry_b2b_strategy']      = 'Price strategy';
+$_['entry_b2b_region_priority']   = 'Region priority';
+$_['entry_b2b_supplier_priority'] = 'Supplier priority';
+$_['entry_b2b_supplier_fixed']    = 'Fixed supplier id';
+$_['entry_b2b_promo']         = 'Promo as sale';
+$_['entry_b2b_manage_stock']  = 'Manage stock';
+$_['text_strategy_min']       = 'Minimum price';
+$_['text_strategy_priority']  = 'By supplier priority';
+$_['text_strategy_supplier']  = 'Fixed supplier';
+$_['help_b2b_csv']            = 'Comma-separated ids, highest priority first.';
+$_['help_b2b_supplier_fixed'] = 'Used only with the “Fixed supplier” strategy.';
+$_['help_b2b_promo']          = 'Write promo_price (0 < promo < base) as a product special.';
+$_['help_b2b_manage_stock']   = 'Write the summed warehouse stock to product quantity (subtract on).';
+$_['help_b2b_run']            = 'Runs page-by-page in the browser (no cron needed). Only changed products are written (scan-and-diff).';
+$_['button_b2b_run']          = 'Synchronize now';
+$_['text_b2b_not_configured'] = 'B2B keys are not set — fill url_key and private_key, then save.';
+$_['js_b2b_running']          = 'Syncing…';
+$_['js_b2b_changed']          = 'Changed';
+$_['js_b2b_unchanged']        = 'Unchanged';
+$_['js_b2b_missing']          = 'Not in catalog';
+
 // Error
 $_['error_permission']   = 'Warning: You do not have permission to modify OneCatalog Import!';
 $_['error_no_token']     = 'API token is not set (Settings).';

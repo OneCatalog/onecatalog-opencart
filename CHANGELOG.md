@@ -9,6 +9,23 @@
 
 ## [Не выпущено] — бэклог
 
+### Реализовано на `dev` — §13 синхронизация цен и остатков (B2B) (версия 0.6.0)
+- **`OneCatalogB2bApi`** (`system/library`) — клиент B2B-фида (§13.1): `url_key` в пути +
+  `private_key` в query, пагинация (`start`/`limit`), `total`, разведка справочников
+  (`regions`/`warehouses`/`suppliers`).
+- **`OneCatalogPriceStock`** — чистые резолверы (стратегия min/priority/supplier × приоритет
+  регионов; promo<base → скидка; сумма остатков по складам; коды поставщиков; сигнатура по
+  результату). Покрыты офлайн-тестом (`tests/pricestock-test.php`, 15 проверок).
+- **`ModelExtensionOnecatalogB2b`** — **scan-and-diff** (§13.4): префетч
+  `public_id→product_id` (`onecatalog_map`) и сигнатур (`onecatalog_meta`) одним запросом;
+  пишутся только изменившиеся. Цена → `product.price`, скидка → `product_special`, остаток →
+  `product.quantity` (+`subtract`). Сигнатуры/коды — в `onecatalog_meta`.
+- **Страница «Цены и остатки»** + браузерный степпер (`b2b-sync.js`, постранично, прогресс +
+  сводка изменено/без изменений/нет в каталоге). B2B-настройки — отдельная группа `oc_setting`
+  (не затирают основные). Пункт меню, RU/EN.
+- ✅ Импорт каталога (§1–§12) + синхронизация цен/остатков (§13) — оба сценария стандарта покрыты.
+
+
 ### Реализовано на `dev` — справочные сущности (версия 0.5.0)
 - **Бренд → нативный `manufacturer`** (find-or-create по имени + `manufacturer_to_store`).
 - **Теги → нативное поле `product_description.tag`** (на все языки).

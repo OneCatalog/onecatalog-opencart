@@ -175,6 +175,96 @@ class ControllerExtensionModuleOnecatalog extends Controller
         return array_reverse($rows->rows);
     }
 
+    /** Страница «Цены и остатки» (B2B-синк): настройки + браузерный степпер запуска. */
+    public function b2bPage()
+    {
+        $this->load->language('extension/module/onecatalog');
+        $this->document->setTitle($this->language->get('heading_b2b'));
+        $this->load->model('setting/setting');
+
+        // B2B-настройки — ОТДЕЛЬНАЯ группа, чтобы не затирать основные настройки.
+        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
+            $this->model_setting_setting->editSetting('module_onecatalog_b2b', $this->request->post);
+            $this->session->data['success'] = $this->language->get('text_success');
+            $this->response->redirect($this->url->link('extension/module/onecatalog/b2bPage', 'user_token=' . $this->session->data['user_token'], true));
+        }
+
+        $data['error_warning'] = isset($this->error['warning']) ? $this->error['warning'] : '';
+        if (isset($this->session->data['success'])) {
+            $data['success'] = $this->session->data['success'];
+            unset($this->session->data['success']);
+        } else {
+            $data['success'] = '';
+        }
+
+        $data['breadcrumbs'] = array();
+        $data['breadcrumbs'][] = array('text' => $this->language->get('text_home'), 'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true));
+        $data['breadcrumbs'][] = array('text' => $this->language->get('heading_b2b'), 'href' => $this->url->link('extension/module/onecatalog/b2bPage', 'user_token=' . $this->session->data['user_token'], true));
+
+        $data['action'] = $this->url->link('extension/module/onecatalog/b2bPage', 'user_token=' . $this->session->data['user_token'], true);
+
+        $data['fields'] = array(
+            'module_onecatalog_b2b_base'              => 'https://api.onecatalog.net/b2b/v1',
+            'module_onecatalog_b2b_url_key'           => '',
+            'module_onecatalog_b2b_private_key'       => '',
+            'module_onecatalog_b2b_strategy'          => 'min',
+            'module_onecatalog_b2b_region_priority'   => '',
+            'module_onecatalog_b2b_supplier_priority' => '',
+            'module_onecatalog_b2b_supplier_fixed'    => '',
+            'module_onecatalog_b2b_promo_as_sale'     => '1',
+            'module_onecatalog_b2b_manage_stock'      => '1',
+        );
+        foreach ($data['fields'] as $key => $default) {
+            if (isset($this->request->post[$key])) {
+                $data['fields'][$key] = $this->request->post[$key];
+            } elseif (null !== $this->config->get($key)) {
+                $data['fields'][$key] = $this->config->get($key);
+            }
+        }
+
+        $cfg = array(
+            'syncUrl'  => $this->url->link('extension/module/onecatalog/b2bSync', 'user_token=' . $this->session->data['user_token'], true),
+            'limit'    => 200,
+            'messages' => array(
+                'running'   => $this->language->get('js_b2b_running'),
+                'done'      => $this->language->get('js_done'),
+                'error'     => $this->language->get('js_error'),
+                'changed'   => $this->language->get('js_b2b_changed'),
+                'unchanged' => $this->language->get('js_b2b_unchanged'),
+                'missing'   => $this->language->get('js_b2b_missing'),
+            ),
+        );
+        $data['oc_b2b_cfg_json'] = json_encode($cfg);
+        $data['configured'] = ((string) $this->config->get('module_onecatalog_b2b_url_key') !== '' && (string) $this->config->get('module_onecatalog_b2b_private_key') !== '');
+
+        $this->document->addScript('view/javascript/onecatalog/b2b-sync.js');
+
+        $data['header'] = $this->load->controller('common/header');
+        $data['column_left'] = $this->load->controller('common/column_left');
+        $data['footer'] = $this->load->controller('common/footer');
+
+        $this->response->setOutput($this->load->view('extension/module/onecatalog_b2b', $data));
+    }
+
+    /** AJAX: обработать одну страницу B2B-фида (scan-and-diff) → JSON прогресс. */
+    public function b2bSync()
+    {
+        $this->load->language('extension/module/onecatalog');
+        $json = array();
+
+        if (!$this->user->hasPermission('modify', 'extension/module/onecatalog')) {
+            $json['error'] = $this->language->get('error_permission');
+        } else {
+            $start = (int) ($this->request->post['start'] ?? 0);
+            $limit = max(1, (int) ($this->request->post['limit'] ?? 200));
+            $this->load->model('extension/onecatalog/b2b');
+            $json = $this->model_extension_onecatalog_b2b->processPage($start, $limit);
+        }
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
     protected function validate()
     {
         if (!$this->user->hasPermission('modify', 'extension/module/onecatalog')) {
