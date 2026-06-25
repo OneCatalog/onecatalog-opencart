@@ -19,7 +19,17 @@ class ModelExtensionOnecatalogImport extends Model
         $api = $this->api();
         $payload = $api->getProduct($publicId);
         if ($payload === null) {
-            return array('status' => 'error', 'public_id' => $publicId, 'message' => 'product not found in API');
+            $status = $api->lastStatus;
+            if ($status === 401 || $status === 403) {
+                $msg = 'API auth failed (HTTP ' . $status . ') — check the Wiki API token in Settings';
+            } elseif ($status === 404) {
+                $msg = 'product not found in API (HTTP 404)';
+            } elseif ($status === 0) {
+                $msg = 'API unreachable: ' . $api->lastError;
+            } else {
+                $msg = 'API error: ' . ($api->lastError !== '' ? $api->lastError : ('HTTP ' . $status));
+            }
+            return array('status' => 'error', 'public_id' => $publicId, 'message' => $msg, 'http' => $status);
         }
         return $this->importPayload($payload, $publicId);
     }

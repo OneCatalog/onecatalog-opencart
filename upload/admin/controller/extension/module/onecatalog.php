@@ -144,6 +144,7 @@ class ControllerExtensionModuleOnecatalog extends Controller
 
             $this->load->model('extension/onecatalog/import');
             $results = array();
+            $authError = '';
             foreach ($ids as $publicId) {
                 try {
                     $r = $this->model_extension_onecatalog_import->importByPublicId($publicId);
@@ -152,9 +153,17 @@ class ControllerExtensionModuleOnecatalog extends Controller
                 }
                 $results[] = $r;
                 $this->logResult($r);
+                // Токен отклонён (401/403) — дальше все ответы будут такими же, прерываем порцию.
+                if (!empty($r['http']) && ((int) $r['http'] === 401 || (int) $r['http'] === 403)) {
+                    $authError = $r['message'];
+                    break;
+                }
             }
             $json['results'] = $results;
             $json['log'] = $this->recentLog();
+            if ($authError !== '') {
+                $json['error'] = $authError;
+            }
         }
 
         $this->response->addHeader('Content-Type: application/json');

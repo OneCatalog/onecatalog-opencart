@@ -2,21 +2,23 @@
 <modification>
 	<name>OneCatalog Import</name>
 	<code>onecatalog</code>
-	<version>0.7.1</version>
+	<version>0.7.2</version>
 	<author>OneCatalog</author>
 	<link>https://github.com/OneCatalog/onecatalog-opencart</link>
 
 	<!--
-		Пункт меню «OneCatalog» в левой колонке админки.
-		error="skip": если разметка core column_left.php отличается (правки темы/версии),
-		установка не падает — страница всё равно доступна через
-		«Расширения → Модули → OneCatalog Import».
+		Пункт меню «OneCatalog» в левой колонке админки (над «Catalog»).
+		⚠️ OCMOD в OpenCart 3 сопоставляет <search> ПОСТРОЧНО — паттерн обязан быть
+		ОДНОЙ физической строкой (многострочный <search> с error="skip" молча не срабатывает).
+		Анкор — уникальная строка `'id' => 'menu-catalog',`; вставляем блок на строку выше
+		(offset="1" → перед открывающей `$data['menus'][] = array(` для Catalog).
+		error="skip": если разметка core отличается (тема/версия) — установка не падает,
+		страница доступна через «Расширения → Модули → OneCatalog Import».
 	-->
 	<file path="admin/controller/common/column_left.php">
 		<operation error="skip">
-			<search><![CDATA[$data['menus'] = array();]]></search>
-			<add position="after"><![CDATA[
-		$data['menus'][] = array(
+			<search><![CDATA['id'       => 'menu-catalog',]]></search>
+			<add position="before" offset="1"><![CDATA[$data['menus'][] = array(
 			'id'       => 'menu-onecatalog',
 			'icon'     => 'fa-download',
 			'name'     => 'OneCatalog',
@@ -28,7 +30,8 @@
 				array('name' => 'Settings', 'href' => $this->url->link('extension/module/onecatalog', 'user_token=' . $this->session->data['user_token'], true), 'children' => array())
 			)
 		);
-]]></add>
+
+		]]></add>
 		</operation>
 	</file>
 </modification>

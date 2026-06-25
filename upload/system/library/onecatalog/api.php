@@ -12,6 +12,8 @@ class OneCatalogApi
     private $base;
     private $token;
     private $lang;
+    public $lastStatus = 0;   // последний HTTP-код (0 = транспортная ошибка curl)
+    public $lastError  = '';  // человекочитаемая причина последней неудачи
 
     public function __construct($base, $token = '', $lang = 'en')
     {
@@ -41,14 +43,25 @@ class OneCatalogApi
             CURLOPT_HTTPHEADER     => $this->token !== '' ? array('X-API-Key: ' . $this->token) : array(),
         ));
         $body = curl_exec($ch);
-        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $this->lastStatus = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr = curl_error($ch);
         curl_close($ch);
 
-        if ($body === false || $code < 200 || $code >= 300) {
+        if ($body === false) {
+            $this->lastError = 'network error: ' . $curlErr;
+            return null;
+        }
+        if ($this->lastStatus < 200 || $this->lastStatus >= 300) {
+            $this->lastError = 'HTTP ' . $this->lastStatus;
             return null;
         }
         $json = json_decode($body, true);
-        return is_array($json) ? $json : null;
+        if (!is_array($json)) {
+            $this->lastError = 'invalid JSON response';
+            return null;
+        }
+        $this->lastError = '';
+        return $json;
     }
 
     /** Товар по public_id → payload (data) или null. */
@@ -56,11 +69,17 @@ class OneCatalogApi
     {
         $publicId = trim((string) $publicId);
         if ($publicId === '') {
+            $this->lastStatus = 0;
+            $this->lastError = 'empty public_id';
             return null;
         }
         $r = $this->get($this->base . '/products/' . rawurlencode($publicId) . '/');
-        if (!empty($r['success']) && isset($r['data']) && is_array($r['data'])) {
+        if (is_array($r) && !empty($r['success']) && isset($r['data']) && is_array($r['data'])) {
             return $r['data'];
+        }
+        if (is_array($r)) {
+            // транспорт ок (2xx, валидный JSON), но API не вернул товар
+            $this->lastError = 'product not found in API';
         }
         return null;
     }
@@ -78,13 +97,16 @@ class OneCatalogApi
             CURLOPT_HTTPHEADER     => $this->token !== '' ? array('X-API-Key: ' . $this->token) : array(),
         ));
         $body = curl_exec($ch);
-        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $this->lastStatus = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $type = (string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        $curlErr = curl_error($ch);
         curl_close($ch);
 
-        if ($body === false || $code < 200 || $code >= 300 || $body === '') {
+        if ($body === false || $this->lastStatus < 200 || $this->lastStatus >= 300 || $body === '') {
+            $this->lastError = ($body === false) ? ('network error: ' . $curlErr) : ('HTTP ' . $this->lastStatus);
             return null;
         }
+        $this->lastError = '';
         return array('body' => $body, 'content_type' => $type);
     }
 }
