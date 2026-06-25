@@ -103,6 +103,13 @@ class ModelExtensionOnecatalogB2b extends Model
             $flat[] = $c['supplier_id'] . ':' . $c['code'];
         }
         $this->metaSet($productId, 'supplier_code', implode(',', $flat));
+
+        // Событие (§13.7): сырые офферы → сайт раскладывает цены по регионам / остатки по складам.
+        if ($this->registry->has('event')) {
+            $this->registry->get('event')->trigger('onecatalog.pricestock.updated', array(array(
+                'product_id' => (int) $productId, 'record' => $rec, 'offers' => $offers,
+            )));
+        }
     }
 
     private function cfg()

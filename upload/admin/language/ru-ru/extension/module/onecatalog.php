@@ -63,6 +63,16 @@ $_['help_country_attr']     = '→ атрибут «Country»';
 $_['text_target_attribute'] = 'Атрибут';
 $_['text_target_category']  = 'Категория';
 
+// Журнал импорта
+$_['heading_log']        = 'OneCatalog — журнал импорта';
+$_['button_refresh']     = 'Обновить';
+$_['column_time']        = 'Время';
+$_['column_key']         = 'public_id';
+$_['column_status']      = 'Статус';
+$_['column_message']     = 'Сообщение';
+$_['text_no_entries']    = 'Записей пока нет.';
+$_['text_log_hint']      = 'Последние 200 результатов импорта (создан / обновлён / ошибка).';
+
 // B2B — цены и остатки (§13)
 $_['heading_b2b']             = 'OneCatalog — цены и остатки (B2B)';
 $_['heading_b2b_run']         = 'Запуск синхронизации';

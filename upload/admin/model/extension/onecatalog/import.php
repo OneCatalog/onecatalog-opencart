@@ -65,6 +65,11 @@ class ModelExtensionOnecatalogImport extends Model
             $this->load->model('extension/onecatalog/media');
             $this->model_extension_onecatalog_media->applyMedia($productId, $p);
 
+            // Событие для сайтового слоя (§8): дозаполнение полей, не входящих в ядро.
+            $this->trigger('onecatalog.product.imported', array(
+                'product_id' => $productId, 'public_id' => $publicId, 'status' => $status, 'payload' => $p,
+            ));
+
             return array('status' => $status, 'public_id' => $publicId, 'product_id' => $productId);
         } catch (\Exception $e) {
             return array('status' => 'error', 'public_id' => $publicId, 'message' => $e->getMessage());
@@ -417,6 +422,14 @@ class ModelExtensionOnecatalogImport extends Model
     private function enabled($key)
     {
         return (string) $this->config->get('module_onecatalog_' . $key) === '1';
+    }
+
+    /** Триггер события расширения (§8) — сайт подписывается через систему событий OpenCart. */
+    private function trigger($event, array $args)
+    {
+        if ($this->registry->has('event')) {
+            $this->registry->get('event')->trigger($event, array($args));
+        }
     }
 
     // --- габариты (Units → классы магазина, §5.6) ----------------------------

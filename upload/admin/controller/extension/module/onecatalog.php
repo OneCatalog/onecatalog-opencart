@@ -265,6 +265,28 @@ class ControllerExtensionModuleOnecatalog extends Controller
         $this->response->setOutput(json_encode($json));
     }
 
+    /** Журнал импорта — последние результаты (из onecatalog_log). */
+    public function logPage()
+    {
+        $this->load->language('extension/module/onecatalog');
+        $this->document->setTitle($this->language->get('heading_log'));
+
+        $data['breadcrumbs'] = array();
+        $data['breadcrumbs'][] = array('text' => $this->language->get('text_home'), 'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true));
+        $data['breadcrumbs'][] = array('text' => $this->language->get('heading_log'), 'href' => $this->url->link('extension/module/onecatalog/logPage', 'user_token=' . $this->session->data['user_token'], true));
+
+        $data['refresh'] = $this->url->link('extension/module/onecatalog/logPage', 'user_token=' . $this->session->data['user_token'], true);
+
+        $rows = $this->db->query("SELECT public_id, status, message, date_added FROM `" . DB_PREFIX . "onecatalog_log` ORDER BY log_id DESC LIMIT 200");
+        $data['entries'] = $rows->rows;
+
+        $data['header'] = $this->load->controller('common/header');
+        $data['column_left'] = $this->load->controller('common/column_left');
+        $data['footer'] = $this->load->controller('common/footer');
+
+        $this->response->setOutput($this->load->view('extension/module/onecatalog_log', $data));
+    }
+
     protected function validate()
     {
         if (!$this->user->hasPermission('modify', 'extension/module/onecatalog')) {

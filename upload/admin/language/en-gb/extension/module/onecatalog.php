@@ -63,6 +63,16 @@ $_['help_country_attr']     = '→ attribute “Country”';
 $_['text_target_attribute'] = 'Attribute';
 $_['text_target_category']  = 'Category';
 
+// Import log
+$_['heading_log']        = 'OneCatalog — import log';
+$_['button_refresh']     = 'Refresh';
+$_['column_time']        = 'Time';
+$_['column_key']         = 'public_id';
+$_['column_status']      = 'Status';
+$_['column_message']     = 'Message';
+$_['text_no_entries']    = 'No entries yet.';
+$_['text_log_hint']      = 'Last 200 import results (created / updated / error).';
+
 // B2B — prices & stock (§13)
 $_['heading_b2b']             = 'OneCatalog — prices & stock (B2B)';
 $_['heading_b2b_run']         = 'Run synchronization';

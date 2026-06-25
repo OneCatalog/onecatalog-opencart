@@ -1,0 +1,49 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ refresh }}" data-toggle="tooltip" title="{{ button_refresh }}" class="btn btn-default"><i class="fa fa-refresh"></i> {{ button_refresh }}</a>
+      </div>
+      <h1>{{ heading_log }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-list"></i> {{ heading_log }}</h3></div>
+      <div class="panel-body">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <td>{{ column_time }}</td>
+              <td>{{ column_key }}</td>
+              <td>{{ column_status }}</td>
+              <td>{{ column_message }}</td>
+            </tr>
+          </thead>
+          <tbody>
+            {% if entries %}
+              {% for e in entries %}
+              <tr>
+                <td>{{ e.date_added }}</td>
+                <td>{{ e.public_id }}</td>
+                <td>{{ e.status }}</td>
+                <td>{{ e.message }}</td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="4" class="text-center">{{ text_no_entries }}</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+        <p class="text-muted">{{ text_log_hint }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

@@ -2,7 +2,7 @@
 <modification>
 	<name>OneCatalog Import</name>
 	<code>onecatalog</code>
-	<version>0.6.0</version>
+	<version>0.7.0</version>
 	<author>OneCatalog</author>
 	<link>https://github.com/OneCatalog/onecatalog-opencart</link>
 
@@ -30,6 +30,11 @@
 					array(
 						'name'     => 'Prices & stock',
 						'href'     => $this->url->link('extension/module/onecatalog/b2bPage', 'user_token=' . $this->session->data['user_token'], true),
+						'children' => array()
+					),
+					array(
+						'name'     => 'Import log',
+						'href'     => $this->url->link('extension/module/onecatalog/logPage', 'user_token=' . $this->session->data['user_token'], true),
 						'children' => array()
 					),
 					array(
