@@ -102,8 +102,11 @@ class ControllerExtensionModuleOnecatalog extends Controller
         $data['configured'] = (string) $this->config->get('module_onecatalog_api_token') !== '';
 
         // Конфиг для фронта (степпер + пикер). user_token — в ajaxUrl (требуется админкой).
+        // url->link() кодирует разделитель как &amp; (для HTML); во фронтовом fetch() это
+        // ломает разбор query (user_token «теряется» → Invalid token session). Раскодируем
+        // обратно в '&' — стандартный приём ядра (ср. marketplace/install.php).
         $cfg = array(
-            'ajaxUrl'    => $this->url->link('extension/module/onecatalog/importBatch', 'user_token=' . $this->session->data['user_token'], true),
+            'ajaxUrl'    => str_replace('&amp;', '&', $this->url->link('extension/module/onecatalog/importBatch', 'user_token=' . $this->session->data['user_token'], true)),
             'pickerBase' => (string) ($this->config->get('module_onecatalog_picker_base') ?: 'https://tools.onecatalog.net'),
             'token'      => (string) $this->config->get('module_onecatalog_api_token'),
             'step'       => max(10, (int) $this->config->get('module_onecatalog_step')),
@@ -232,7 +235,7 @@ class ControllerExtensionModuleOnecatalog extends Controller
         }
 
         $cfg = array(
-            'syncUrl'  => $this->url->link('extension/module/onecatalog/b2bSync', 'user_token=' . $this->session->data['user_token'], true),
+            'syncUrl'  => str_replace('&amp;', '&', $this->url->link('extension/module/onecatalog/b2bSync', 'user_token=' . $this->session->data['user_token'], true)),
             'limit'    => 200,
             'messages' => array(
                 'running'   => $this->language->get('js_b2b_running'),
