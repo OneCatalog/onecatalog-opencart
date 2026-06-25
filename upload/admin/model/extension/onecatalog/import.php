@@ -478,7 +478,7 @@ class ModelExtensionOnecatalogImport extends Model
         foreach ($keys as $k) {
             if (isset($sizes[$k]) && $sizes[$k] !== '' && is_numeric($sizes[$k])) {
                 $val = (float) $sizes[$k];
-                $unit = (string) ($sizes[$unitKey] ?? '');
+                $unit = $this->unitCode($sizes[$unitKey] ?? '');
                 if ($unit !== '') {
                     return $kind === 'weight'
                         ? OneCatalogUnits::toBaseWeight($val, $unit)
@@ -488,6 +488,24 @@ class ModelExtensionOnecatalogImport extends Model
             }
         }
         return null;
+    }
+
+    /**
+     * Код единицы измерения из payload. Wiki API отдаёт единицу либо строкой,
+     * либо объектом ({id,label} / {slug,name}) — приводим к скалярному коду,
+     * чтобы не словить «Array to string conversion» и не передать "Array" в конвертер.
+     */
+    private function unitCode($raw)
+    {
+        if (is_array($raw)) {
+            foreach (array('id', 'slug', 'label', 'name', 'code') as $key) {
+                if (isset($raw[$key]) && $raw[$key] !== '' && !is_array($raw[$key])) {
+                    return (string) $raw[$key];
+                }
+            }
+            return '';
+        }
+        return (string) $raw;
     }
 
     private function classUnit($kind, $classId)
