@@ -1,13 +1,38 @@
 <?php
 // Heading
 $_['heading_title']      = 'OneCatalog Import';
+$_['heading_import']     = 'OneCatalog — import products';
 
 // Text
+$_['text_home']          = 'Home';
 $_['text_extension']     = 'Extensions';
 $_['text_success']       = 'Success: OneCatalog settings have been saved!';
 $_['text_edit']          = 'OneCatalog — settings';
 $_['text_enabled']       = 'Enabled';
 $_['text_disabled']      = 'Disabled';
+$_['text_no_token']      = 'API token is not set. Open Settings and enter the token before importing.';
+
+// Buttons
+$_['button_save']        = 'Save';
+$_['button_cancel']      = 'Back';
+$_['button_settings']    = 'Settings';
+$_['button_import']      = 'Import';
+$_['button_pick']        = 'Select products (OneCatalog)';
+$_['button_cancel_run']  = 'Cancel';
+
+// Import page
+$_['entry_or_paste']     = 'or paste a list of identifiers (public_id), separated by comma/space/newline:';
+
+// JS (stepper)
+$_['js_empty']           = 'The identifier list is empty';
+$_['js_importing']       = 'Importing…';
+$_['js_done']            = 'Done:';
+$_['js_error']           = 'Error';
+$_['js_cancelled']       = 'Cancelled:';
+$_['js_created']         = 'Created';
+$_['js_updated']         = 'Updated';
+$_['js_errors']          = 'Errors';
+$_['js_last']            = 'Last result';
 
 // Entry
 $_['entry_status']       = 'Status';
@@ -27,3 +52,4 @@ $_['help_picker_base']   = 'Origin of the product picker widget (default https:/
 
 // Error
 $_['error_permission']   = 'Warning: You do not have permission to modify OneCatalog Import!';
+$_['error_no_token']     = 'API token is not set (Settings).';

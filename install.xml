@@ -2,7 +2,7 @@
 <modification>
 	<name>OneCatalog Import</name>
 	<code>onecatalog</code>
-	<version>0.3.0</version>
+	<version>0.4.0</version>
 	<author>OneCatalog</author>
 	<link>https://github.com/OneCatalog/onecatalog-opencart</link>
 
@@ -20,8 +20,19 @@
 				'id'       => 'menu-onecatalog',
 				'icon'     => 'fa-download',
 				'name'     => 'OneCatalog',
-				'href'     => $this->url->link('extension/module/onecatalog', 'user_token=' . $this->session->data['user_token'], true),
-				'children' => array()
+				'href'     => '',
+				'children' => array(
+					array(
+						'name'     => 'Import',
+						'href'     => $this->url->link('extension/module/onecatalog/importPage', 'user_token=' . $this->session->data['user_token'], true),
+						'children' => array()
+					),
+					array(
+						'name'     => 'Settings',
+						'href'     => $this->url->link('extension/module/onecatalog', 'user_token=' . $this->session->data['user_token'], true),
+						'children' => array()
+					)
+				)
 			);
 
 			]]></add>

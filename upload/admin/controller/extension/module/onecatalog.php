@@ -70,11 +70,103 @@ class ControllerExtensionModuleOnecatalog extends Controller
             }
         }
 
+        $data['import_url'] = $this->url->link('extension/module/onecatalog/importPage', 'user_token=' . $this->session->data['user_token'], true);
+
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
 
         $this->response->setOutput($this->load->view('extension/module/onecatalog', $data));
+    }
+
+    /** Операционная страница импорта (пикер + поле ввода + прогресс). */
+    public function importPage()
+    {
+        $this->load->language('extension/module/onecatalog');
+        $this->document->setTitle($this->language->get('heading_import'));
+
+        $this->document->addScript('view/javascript/onecatalog/picker-loader.js');
+        $this->document->addScript('view/javascript/onecatalog/admin-import.js');
+
+        $data['breadcrumbs'] = array();
+        $data['breadcrumbs'][] = array('text' => $this->language->get('text_home'), 'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true));
+        $data['breadcrumbs'][] = array('text' => $this->language->get('heading_title'), 'href' => $this->url->link('extension/module/onecatalog/importPage', 'user_token=' . $this->session->data['user_token'], true));
+
+        $data['settings_url'] = $this->url->link('extension/module/onecatalog', 'user_token=' . $this->session->data['user_token'], true);
+        $data['configured'] = (string) $this->config->get('module_onecatalog_api_token') !== '';
+
+        // Конфиг для фронта (степпер + пикер). user_token — в ajaxUrl (требуется админкой).
+        $cfg = array(
+            'ajaxUrl'    => $this->url->link('extension/module/onecatalog/importBatch', 'user_token=' . $this->session->data['user_token'], true),
+            'pickerBase' => (string) ($this->config->get('module_onecatalog_picker_base') ?: 'https://tools.onecatalog.net'),
+            'token'      => (string) $this->config->get('module_onecatalog_api_token'),
+            'step'       => max(10, (int) $this->config->get('module_onecatalog_step')),
+            'messages'   => array(
+                'empty'     => $this->language->get('js_empty'),
+                'importing' => $this->language->get('js_importing'),
+                'done'      => $this->language->get('js_done'),
+                'error'     => $this->language->get('js_error'),
+                'cancelled' => $this->language->get('js_cancelled'),
+                'created'   => $this->language->get('js_created'),
+                'updated'   => $this->language->get('js_updated'),
+                'errors'    => $this->language->get('js_errors'),
+                'last'      => $this->language->get('js_last'),
+            ),
+        );
+        $data['oc_cfg_json'] = json_encode($cfg);
+
+        $data['header'] = $this->load->controller('common/header');
+        $data['column_left'] = $this->load->controller('common/column_left');
+        $data['footer'] = $this->load->controller('common/footer');
+
+        $this->response->setOutput($this->load->view('extension/module/onecatalog_import', $data));
+    }
+
+    /** AJAX: импорт одной порции public_id → JSON {results, log}. */
+    public function importBatch()
+    {
+        $this->load->language('extension/module/onecatalog');
+        $json = array();
+
+        if (!$this->user->hasPermission('modify', 'extension/module/onecatalog')) {
+            $json['error'] = $this->language->get('error_permission');
+        } elseif ((string) $this->config->get('module_onecatalog_api_token') === '') {
+            $json['error'] = $this->language->get('error_no_token');
+        } else {
+            $ids = isset($this->request->post['ids']) ? (array) $this->request->post['ids'] : array();
+            $ids = array_values(array_filter(array_map('trim', $ids)));
+
+            $this->load->model('extension/onecatalog/import');
+            $results = array();
+            foreach ($ids as $publicId) {
+                try {
+                    $r = $this->model_extension_onecatalog_import->importByPublicId($publicId);
+                } catch (\Exception $e) {
+                    $r = array('status' => 'error', 'public_id' => $publicId, 'message' => $e->getMessage());
+                }
+                $results[] = $r;
+                $this->logResult($r);
+            }
+            $json['results'] = $results;
+            $json['log'] = $this->recentLog();
+        }
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
+
+    private function logResult(array $r)
+    {
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "onecatalog_log` SET "
+            . "public_id = '" . $this->db->escape((string) ($r['public_id'] ?? '')) . "', "
+            . "status = '" . $this->db->escape((string) ($r['status'] ?? '')) . "', "
+            . "message = '" . $this->db->escape((string) ($r['message'] ?? '')) . "', date_added = NOW()");
+    }
+
+    private function recentLog()
+    {
+        $rows = $this->db->query("SELECT public_id, status, message FROM `" . DB_PREFIX . "onecatalog_log` ORDER BY log_id DESC LIMIT 50");
+        return array_reverse($rows->rows);
     }
 
     protected function validate()

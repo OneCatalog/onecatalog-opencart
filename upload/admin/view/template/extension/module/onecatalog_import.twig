@@ -1,0 +1,63 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ settings_url }}" data-toggle="tooltip" title="{{ button_settings }}" class="btn btn-default"><i class="fa fa-cog"></i> {{ button_settings }}</a>
+      </div>
+      <h1>{{ heading_import }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if not configured %}
+    <div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> {{ text_no_token }}</div>
+    {% endif %}
+
+    <style>
+      #oc-import-app .oc-spinner { display:none; width:14px; height:14px; margin-right:7px; border:2px solid #cfd8e3; border-top-color:#2067b0; border-radius:50%; vertical-align:middle; animation:oc-spin .7s linear infinite; }
+      @keyframes oc-spin { to { transform: rotate(360deg); } }
+      #oc-import-app .oc-bar-wrap { height:6px; background:#eee; border-radius:3px; margin-top:8px; overflow:hidden; }
+      #oc-import-app .oc-bar { height:100%; width:0; background:#2067b0; transition:width .2s ease; }
+      #oc-import-app .oc-bar.oc-ok { background:#3aa76d; }
+      #oc-import-app .oc-bar.oc-err { background:#d9534f; }
+      #oc-import-app button[disabled] { opacity:.55; cursor:default; }
+      #oc-import-app textarea[disabled] { background:#f3f3f3; }
+      #oc-log { max-height:340px; overflow:auto; background:#f7f7f7; border:1px solid #ddd; padding:8px; white-space:pre; }
+    </style>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-download"></i> {{ heading_import }}</h3>
+      </div>
+      <div class="panel-body">
+        <div id="oc-import-app" style="max-width:760px">
+          <p>
+            <button type="button" class="btn btn-primary" id="oc-open-picker"><i class="fa fa-th"></i> {{ button_pick }}</button>
+          </p>
+          <div class="form-group">
+            <label for="oc-ids">{{ entry_or_paste }}</label>
+            <textarea id="oc-ids" rows="4" class="form-control" placeholder="OC.IND.1, OC.IND.2, …"></textarea>
+          </div>
+          <p>
+            <button type="button" class="btn btn-default" id="oc-import-btn"><i class="fa fa-play"></i> {{ button_import }}</button>
+            <button type="button" class="btn btn-default" id="oc-cancel-btn" style="display:none"><i class="fa fa-stop"></i> {{ button_cancel_run }}</button>
+          </p>
+          <div id="oc-status" style="margin:12px 0;display:none">
+            <span class="oc-spinner" id="oc-spinner"></span>
+            <span id="oc-progress" style="font-weight:bold"></span>
+            <div class="oc-bar-wrap"><div class="oc-bar" id="oc-bar"></div></div>
+            <div id="oc-summary" style="margin-top:8px;color:#333"></div>
+          </div>
+          <pre id="oc-log"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>window.OneCatalogCfg = {{ oc_cfg_json|raw }};</script>
+{{ footer }}
