@@ -94,6 +94,47 @@
             </div>
           </div>
 
+          <hr/>
+          <p class="text-muted">{{ help_references }}</p>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-import-brand">{{ entry_import_brand }}</label>
+            <div class="col-sm-10">
+              <label class="checkbox-inline"><input type="checkbox" name="module_onecatalog_import_brand" value="1"{% if fields.module_onecatalog_import_brand == '1' %} checked{% endif %} id="input-import-brand"/> {{ help_brand_native }}</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-import-tags">{{ entry_import_tags }}</label>
+            <div class="col-sm-10">
+              <label class="checkbox-inline"><input type="checkbox" name="module_onecatalog_import_tags" value="1"{% if fields.module_onecatalog_import_tags == '1' %} checked{% endif %} id="input-import-tags"/> {{ help_tags_native }}</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-import-country">{{ entry_import_country }}</label>
+            <div class="col-sm-10">
+              <label class="checkbox-inline"><input type="checkbox" name="module_onecatalog_import_country" value="1"{% if fields.module_onecatalog_import_country == '1' %} checked{% endif %} id="input-import-country"/> {{ help_country_attr }}</label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-import-collections">{{ entry_import_collections }}</label>
+            <div class="col-sm-10">
+              <label class="checkbox-inline"><input type="checkbox" name="module_onecatalog_import_collections" value="1"{% if fields.module_onecatalog_import_collections == '1' %} checked{% endif %} id="input-import-collections"/></label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-collection-target">{{ entry_collection_target }}</label>
+            <div class="col-sm-10">
+              <select name="module_onecatalog_collection_target" id="input-collection-target" class="form-control">
+                <option value="attribute"{% if fields.module_onecatalog_collection_target == 'attribute' %} selected{% endif %}>{{ text_target_attribute }}</option>
+                <option value="category"{% if fields.module_onecatalog_collection_target == 'category' %} selected{% endif %}>{{ text_target_category }}</option>
+              </select>
+            </div>
+          </div>
+
         </form>
       </div>
     </div>

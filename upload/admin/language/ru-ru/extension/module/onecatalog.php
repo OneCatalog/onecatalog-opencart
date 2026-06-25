@@ -50,6 +50,19 @@ $_['help_step']          = 'Сколько товаров в одной порц
 $_['help_new_status']    = 'Статус задаётся только новым товарам; при переимпорте не затирается.';
 $_['help_picker_base']   = 'Origin виджета выбора товаров (по умолчанию https://tools.onecatalog.net).';
 
+// Справочные сущности (§3/§7)
+$_['help_references']       = 'Справочные сущности по умолчанию выключены — включайте осознанно. Приоритет — нативные поля платформы, а не создание своих.';
+$_['entry_import_brand']    = 'Импортировать бренд';
+$_['entry_import_tags']     = 'Импортировать теги';
+$_['entry_import_country']  = 'Импортировать страну';
+$_['entry_import_collections'] = 'Импортировать коллекции';
+$_['entry_collection_target']  = '↳ Цель для коллекций';
+$_['help_brand_native']     = '→ нативный «Производитель» (Manufacturer)';
+$_['help_tags_native']      = '→ нативное поле тегов товара';
+$_['help_country_attr']     = '→ атрибут «Country»';
+$_['text_target_attribute'] = 'Атрибут';
+$_['text_target_category']  = 'Категория';
+
 // Error
 $_['error_permission']   = 'Внимание: у вас нет прав на изменение OneCatalog Импорт!';
 $_['error_no_token']     = 'API-токен не задан (Настройки).';

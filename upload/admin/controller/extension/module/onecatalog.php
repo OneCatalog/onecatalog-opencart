@@ -61,6 +61,12 @@ class ControllerExtensionModuleOnecatalog extends Controller
             'module_onecatalog_step'        => '10',
             'module_onecatalog_new_status'  => '1',
             'module_onecatalog_picker_base' => 'https://tools.onecatalog.net',
+            // Справочные сущности (§3/§7): по умолчанию ВЫКЛючены.
+            'module_onecatalog_import_brand'        => '0',
+            'module_onecatalog_import_tags'         => '0',
+            'module_onecatalog_import_country'      => '0',
+            'module_onecatalog_import_collections'  => '0',
+            'module_onecatalog_collection_target'   => 'attribute',
         );
         foreach ($data['fields'] as $key => $default) {
             if (isset($this->request->post[$key])) {

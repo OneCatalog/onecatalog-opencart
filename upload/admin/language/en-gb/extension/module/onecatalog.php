@@ -50,6 +50,19 @@ $_['help_step']          = 'Number of products per import batch (minimum 10).';
 $_['help_new_status']    = 'Status set to newly created products only; not overwritten on re-import.';
 $_['help_picker_base']   = 'Origin of the product picker widget (default https://tools.onecatalog.net).';
 
+// Reference entities (§3/§7)
+$_['help_references']       = 'Reference entities are disabled by default — enable them deliberately. Native targets are preferred over creating own fields.';
+$_['entry_import_brand']    = 'Import brand';
+$_['entry_import_tags']     = 'Import tags';
+$_['entry_import_country']  = 'Import country';
+$_['entry_import_collections'] = 'Import collections';
+$_['entry_collection_target']  = '↳ Collections target';
+$_['help_brand_native']     = '→ native Manufacturer';
+$_['help_tags_native']      = '→ native product Tags field';
+$_['help_country_attr']     = '→ attribute “Country”';
+$_['text_target_attribute'] = 'Attribute';
+$_['text_target_category']  = 'Category';
+
 // Error
 $_['error_permission']   = 'Warning: You do not have permission to modify OneCatalog Import!';
 $_['error_no_token']     = 'API token is not set (Settings).';

@@ -54,8 +54,12 @@ class ModelExtensionOnecatalogImport extends Model
             }
 
             // Категории и характеристики — импорт владеет ими (replace).
-            $this->assignCategories($productId, $this->resolveCategories($p));
-            $this->assignAttributes($productId, $this->resolveAttributes($p));
+            $attrs = $this->resolveAttributes($p);
+            $cats = $this->resolveCategories($p);
+            // Справочные сущности (бренд/страна/теги/коллекции) — §3/§7, по умолчанию выкл.
+            $this->applyReferences($productId, $p, $attrs, $cats);
+            $this->assignCategories($productId, $cats);
+            $this->assignAttributes($productId, $attrs);
 
             // Медиа: обложка + галерея (дедуп + трекинг качества, §5.3).
             $this->load->model('extension/onecatalog/media');
@@ -219,8 +223,14 @@ class ModelExtensionOnecatalogImport extends Model
     private function assignCategories($productId, array $categoryIds)
     {
         $this->db->query("DELETE FROM `" . DB_PREFIX . "product_to_category` WHERE product_id = " . (int) $productId);
+        $seen = array();
         foreach ($categoryIds as $cid) {
-            $this->db->query("INSERT INTO `" . DB_PREFIX . "product_to_category` SET product_id = " . (int) $productId . ", category_id = " . (int) $cid);
+            $cid = (int) $cid;
+            if ($cid <= 0 || isset($seen[$cid])) {
+                continue;
+            }
+            $seen[$cid] = true;
+            $this->db->query("INSERT INTO `" . DB_PREFIX . "product_to_category` SET product_id = " . (int) $productId . ", category_id = " . $cid);
         }
     }
 
@@ -311,6 +321,102 @@ class ModelExtensionOnecatalogImport extends Model
                     . "language_id = " . (int) $lang['language_id'] . ", text = '" . $this->db->escape($a['text']) . "'");
             }
         }
+    }
+
+    // --- справочные сущности (§3/§7: нативное прежде своего, по умолчанию выкл) -
+
+    /** Бренд → нативный manufacturer; теги → нативный tag; страна/коллекции → атрибут/категория. */
+    private function applyReferences($productId, array $p, array &$attrs, array &$cats)
+    {
+        // Бренд → нативный manufacturer (find-or-create по имени).
+        if ($this->enabled('import_brand')) {
+            $brand = trim((string) ($p['brand']['menutitle'] ?? $p['brand']['name'] ?? ''));
+            if ($brand !== '') {
+                $mid = $this->ensureManufacturer($brand);
+                if ($mid) {
+                    $this->db->query("UPDATE `" . DB_PREFIX . "product` SET manufacturer_id = " . (int) $mid . " WHERE product_id = " . (int) $productId);
+                }
+            }
+        }
+
+        // Теги → нативное поле product_description.tag (на все языки).
+        if ($this->enabled('import_tags') && is_array($p['tags'] ?? null)) {
+            $names = array();
+            foreach ($p['tags'] as $t) {
+                $n = trim((string) (is_array($t) ? ($t['title'] ?? $t['name'] ?? '') : $t));
+                if ($n !== '') {
+                    $names[$n] = $n;
+                }
+            }
+            if ($names) {
+                $this->applyTags($productId, implode(',', array_values($names)));
+            }
+        }
+
+        // Страна → атрибут «Country» (find-by-name переиспользует существующий).
+        if ($this->enabled('import_country')) {
+            $country = trim((string) ($p['country']['menutitle'] ?? $p['country']['name'] ?? ''));
+            if ($country !== '') {
+                $gid = $this->ensureAttributeGroup('OneCatalog');
+                $aid = $this->ensureAttribute('Country', $gid);
+                if ($aid) {
+                    $attrs[] = array('attribute_id' => $aid, 'text' => $country);
+                }
+            }
+        }
+
+        // Коллекции → атрибут (по умолчанию) ИЛИ категории (выбор цели).
+        if ($this->enabled('import_collections') && is_array($p['collections'] ?? null)) {
+            $names = array();
+            foreach ($p['collections'] as $c) {
+                $n = trim((string) (is_array($c) ? ($c['menutitle'] ?? $c['name'] ?? '') : $c));
+                if ($n !== '') {
+                    $names[$n] = $n;
+                }
+            }
+            if ($names) {
+                $target = (string) ($this->config->get('module_onecatalog_collection_target') ?: 'attribute');
+                if ($target === 'category') {
+                    foreach ($names as $n) {
+                        $cid = $this->ensureCategory($n, 0);
+                        if ($cid) {
+                            $cats[$cid] = $cid; // объединяем с категориями товара
+                        }
+                    }
+                } else {
+                    $gid = $this->ensureAttributeGroup('OneCatalog');
+                    $aid = $this->ensureAttribute('Collection', $gid);
+                    if ($aid) {
+                        $attrs[] = array('attribute_id' => $aid, 'text' => implode(', ', array_values($names)));
+                    }
+                }
+            }
+        }
+    }
+
+    private function ensureManufacturer($name)
+    {
+        $row = $this->db->query("SELECT manufacturer_id FROM `" . DB_PREFIX . "manufacturer` WHERE LOWER(name) = LOWER('" . $this->db->escape($name) . "') LIMIT 1");
+        if ($row->num_rows) {
+            return (int) $row->row['manufacturer_id'];
+        }
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "manufacturer` SET name = '" . $this->db->escape($name) . "', sort_order = 0");
+        $mid = (int) $this->db->getLastId();
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "manufacturer_to_store` SET manufacturer_id = " . $mid . ", store_id = 0");
+        return $mid;
+    }
+
+    private function applyTags($productId, $tagString)
+    {
+        foreach ($this->langs() as $lang) {
+            $this->db->query("UPDATE `" . DB_PREFIX . "product_description` SET tag = '" . $this->db->escape($tagString) . "' "
+                . "WHERE product_id = " . (int) $productId . " AND language_id = " . (int) $lang['language_id']);
+        }
+    }
+
+    private function enabled($key)
+    {
+        return (string) $this->config->get('module_onecatalog_' . $key) === '1';
     }
 
     // --- габариты (Units → классы магазина, §5.6) ----------------------------
