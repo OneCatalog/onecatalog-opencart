@@ -329,11 +329,26 @@ class ModelExtensionOnecatalogImport extends Model
     private function assignAttributes($productId, array $attrs)
     {
         $this->db->query("DELETE FROM `" . DB_PREFIX . "product_attribute` WHERE product_id = " . (int) $productId);
+
+        // Несколько опций с одинаковым specification_label маппятся в один attribute_id
+        // (напр. Color×2, Room×6). PK product_attribute — (product_id, attribute_id,
+        // language_id), поэтому склеиваем значения одного атрибута в одну строку,
+        // иначе второй INSERT упадёт с Duplicate entry (1062).
+        $merged = array();
         foreach ($attrs as $a) {
+            $aid = (int) $a['attribute_id'];
+            $text = trim((string) $a['text']);
+            if ($aid === 0 || $text === '') {
+                continue;
+            }
+            $merged[$aid] = isset($merged[$aid]) ? $merged[$aid] . ', ' . $text : $text;
+        }
+
+        foreach ($merged as $aid => $text) {
             foreach ($this->langs() as $lang) {
                 $this->db->query("INSERT INTO `" . DB_PREFIX . "product_attribute` SET "
-                    . "product_id = " . (int) $productId . ", attribute_id = " . (int) $a['attribute_id'] . ", "
-                    . "language_id = " . (int) $lang['language_id'] . ", text = '" . $this->db->escape($a['text']) . "'");
+                    . "product_id = " . (int) $productId . ", attribute_id = " . $aid . ", "
+                    . "language_id = " . (int) $lang['language_id'] . ", text = '" . $this->db->escape($text) . "'");
             }
         }
     }
