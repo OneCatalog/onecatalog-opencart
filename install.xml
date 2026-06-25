@@ -2,7 +2,7 @@
 <modification>
 	<name>OneCatalog Import</name>
 	<code>onecatalog</code>
-	<version>0.7.0</version>
+	<version>0.7.1</version>
 	<author>OneCatalog</author>
 	<link>https://github.com/OneCatalog/onecatalog-opencart</link>
 
@@ -14,38 +14,21 @@
 	-->
 	<file path="admin/controller/common/column_left.php">
 		<operation error="skip">
-			<search><![CDATA[$data['menus'][] = array(
-				'id'       => 'menu-catalog',]]></search>
-			<add position="before"><![CDATA[$data['menus'][] = array(
-				'id'       => 'menu-onecatalog',
-				'icon'     => 'fa-download',
-				'name'     => 'OneCatalog',
-				'href'     => '',
-				'children' => array(
-					array(
-						'name'     => 'Import',
-						'href'     => $this->url->link('extension/module/onecatalog/importPage', 'user_token=' . $this->session->data['user_token'], true),
-						'children' => array()
-					),
-					array(
-						'name'     => 'Prices & stock',
-						'href'     => $this->url->link('extension/module/onecatalog/b2bPage', 'user_token=' . $this->session->data['user_token'], true),
-						'children' => array()
-					),
-					array(
-						'name'     => 'Import log',
-						'href'     => $this->url->link('extension/module/onecatalog/logPage', 'user_token=' . $this->session->data['user_token'], true),
-						'children' => array()
-					),
-					array(
-						'name'     => 'Settings',
-						'href'     => $this->url->link('extension/module/onecatalog', 'user_token=' . $this->session->data['user_token'], true),
-						'children' => array()
-					)
-				)
-			);
-
-			]]></add>
+			<search><![CDATA[$data['menus'] = array();]]></search>
+			<add position="after"><![CDATA[
+		$data['menus'][] = array(
+			'id'       => 'menu-onecatalog',
+			'icon'     => 'fa-download',
+			'name'     => 'OneCatalog',
+			'href'     => '',
+			'children' => array(
+				array('name' => 'Import', 'href' => $this->url->link('extension/module/onecatalog/importPage', 'user_token=' . $this->session->data['user_token'], true), 'children' => array()),
+				array('name' => 'Prices & stock', 'href' => $this->url->link('extension/module/onecatalog/b2bPage', 'user_token=' . $this->session->data['user_token'], true), 'children' => array()),
+				array('name' => 'Import log', 'href' => $this->url->link('extension/module/onecatalog/logPage', 'user_token=' . $this->session->data['user_token'], true), 'children' => array()),
+				array('name' => 'Settings', 'href' => $this->url->link('extension/module/onecatalog', 'user_token=' . $this->session->data['user_token'], true), 'children' => array())
+			)
+		);
+]]></add>
 		</operation>
 	</file>
 </modification>
